@@ -1,0 +1,53 @@
+# =========================
+# 🌿 General
+# =========================
+.DS_Store
+*.log
+*.lock
+*.tmp
+*.local
+.env
+.env.*
+__pycache__/
+*.pyc
+
+# =========================
+# ⚛️ Frontend (React + Vite)
+# =========================
+node_modules/
+dist/
+dist-ssr/
+.vite-cache/
+build/
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =========================
+# 🐍 Backend (Flask + Python)
+# =========================
+backend/__pycache__/
+backend/venv/
+backend/.env
+backend/*.pkl
+backend/*.h5
+backend/data/
+backend/notebooks/
+backend/.ipynb_checkpoints/
+backend/*.pyc
+backend/*.log
+
+# =========================
+# 🚀 System / Deployment
+# =========================
+*.bak
+Thumbs.db
+.envrc

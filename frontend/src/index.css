@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 120 15% 8%;
+    --foreground: 120 10% 90%;
+
+    --card: 120 15% 10%;
+    --card-foreground: 120 10% 90%;
+
+    --popover: 120 15% 10%;
+    --popover-foreground: 120 10% 90%;
+
+    --primary: 120 55% 45%;
+    --primary-foreground: 120 15% 8%;
+
+    --secondary: 120 10% 18%;
+    --secondary-foreground: 120 10% 90%;
+
+    --muted: 120 10% 15%;
+    --muted-foreground: 120 5% 65%;
+
+    --accent: 45 75% 55%;
+    --accent-foreground: 120 15% 8%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 120 10% 20%;
+    --input: 120 10% 18%;
+    --ring: 120 55% 45%;
+
+    /* Agricultural theme colors */
+    --farm-green: 120 55% 45%;
+    --farm-green-light: 120 45% 35%;
+    --farm-earth: 35 35% 45%;
+    --farm-sky: 200 25% 25%;
+    --farm-sun: 45 85% 60%;
+    
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--farm-green-light)));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted)));
+    --gradient-sky: linear-gradient(180deg, hsl(var(--farm-sky)), hsl(var(--background)));
+    
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -2px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 8px 25px -5px hsl(0 0% 0% / 0.4);
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+    body::-webkit-scrollbar {
+    display: none; 
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    background-image: 
+      radial-gradient(circle at 25% 25%, hsl(var(--farm-sky) / 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, hsl(var(--farm-green) / 0.05) 0%, transparent 50%);
+  }
+}
+
+@layer components {
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+  
+  .card-gradient {
+    background: var(--gradient-card);
+  }
+  
+  .shadow-farm {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .transition-farm {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
