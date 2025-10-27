@@ -5,3 +5,8 @@ pandas
 numpy
 joblib
 python-dotenv
+matplotlib
+seaborn
+xgboost
+Flask
+Flask-Cors

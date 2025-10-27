@@ -51,3 +51,27 @@ backend/*.log
 *.bak
 Thumbs.db
 .envrc
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+*.log
+
+# Node
+node_modules/
+
+# Models & Data
+backend/models/*.pkl
+backend/data/*.csv
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store

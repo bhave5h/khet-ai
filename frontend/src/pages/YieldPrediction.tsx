@@ -1,304 +1,199 @@
-import { Navbar } from "@/components/Navbar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, Calendar, Ruler, Thermometer } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Navbar } from "../components/Navbar";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { TrendingUp, Ruler } from "lucide-react";
 
 export default function YieldPrediction() {
   const [formData, setFormData] = useState({
     cropType: "",
     area: "",
-    soilType: "",
-    season: "",
     rainfall: "",
     temperature: "",
     pesticides: "",
-    fertilizers: ""
+    fertilizers: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [crops, setCrops] = useState([]);
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // ✅ Fetch unique crop list from backend
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/crops")
+      .then((res) => res.json())
+      .then((data) => setCrops(data.crops || []))
+      .catch(() => setErrorMsg("Unable to load crop list from backend"));
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Yield prediction feature will be implemented with ML model integration!");
+    setLoading(true);
+    setResult(null);
+    setErrorMsg(null);
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/predict_yield", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      if (data.predicted_yield) {
+        setResult(data.predicted_yield);
+      } else {
+        setErrorMsg(data.error || "Prediction failed");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setErrorMsg("Could not connect to backend");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
       <div className="container py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
+        <div className="max-w-3xl mx-auto">
           <div className="text-center mb-8">
-            <div className="mx-auto w-16 h-16 rounded-lg bg-gradient-to-br from-blue-400/20 to-blue-600/20 flex items-center justify-center mb-4">
+            <div className="mx-auto w-16 h-16 rounded-lg bg-gradient-to-br from-green-400/20 to-green-600/20 flex items-center justify-center mb-4">
               <TrendingUp className="h-8 w-8 text-primary" />
             </div>
-            <h1 className="text-4xl font-bold mb-4">Crop Yield Prediction</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Predict your crop yields using machine learning models trained on historical farming data and current conditions.
+            <h1 className="text-4xl font-bold mb-2">Crop Yield Prediction</h1>
+            <p className="text-muted-foreground">
+              Predict the estimated yield of your crop based on weather and input data.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Input Form */}
-            <Card className="shadow-farm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Ruler className="h-5 w-5" />
-                  Farm & Crop Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Basic Information */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="cropType">Crop Type</Label>
-                      <Select value={formData.cropType} onValueChange={(value) => setFormData({...formData, cropType: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select crop" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="rice">Rice</SelectItem>
-                          <SelectItem value="wheat">Wheat</SelectItem>
-                          <SelectItem value="corn">Corn</SelectItem>
-                          <SelectItem value="barley">Barley</SelectItem>
-                          <SelectItem value="cotton">Cotton</SelectItem>
-                          <SelectItem value="sugarcane">Sugarcane</SelectItem>
-                          <SelectItem value="potato">Potato</SelectItem>
-                          <SelectItem value="tomato">Tomato</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="area">Farm Area (hectares)</Label>
-                      <Input
-                        id="area"
-                        type="number"
-                        step="0.1"
-                        placeholder="2.5"
-                        value={formData.area}
-                        onChange={(e) => setFormData({...formData, area: e.target.value})}
-                        required
-                      />
-                    </div>
+          <Card className="shadow-farm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Ruler className="h-5 w-5" />
+                Enter Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Crop Type */}
+                  <div className="space-y-2">
+                    <Label htmlFor="cropType">Crop Type</Label>
+                    <Select
+                      value={formData.cropType}
+                      onValueChange={(value) => setFormData({ ...formData, cropType: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select crop" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {crops.length > 0 ? (
+                          crops.map((crop, index) => (
+                            <SelectItem key={index} value={crop}>
+                              {crop.charAt(0).toUpperCase() + crop.slice(1)}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem disabled>Loading crops...</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* Soil and Season */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="soilType">Soil Type</Label>
-                      <Select value={formData.soilType} onValueChange={(value) => setFormData({...formData, soilType: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select soil type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="sandy">Sandy</SelectItem>
-                          <SelectItem value="clay">Clay</SelectItem>
-                          <SelectItem value="loamy">Loamy</SelectItem>
-                          <SelectItem value="silt">Silt</SelectItem>
-                          <SelectItem value="peaty">Peaty</SelectItem>
-                          <SelectItem value="chalky">Chalky</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="season">Growing Season</Label>
-                      <Select value={formData.season} onValueChange={(value) => setFormData({...formData, season: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select season" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="kharif">Kharif (Monsoon)</SelectItem>
-                          <SelectItem value="rabi">Rabi (Winter)</SelectItem>
-                          <SelectItem value="zaid">Zaid (Summer)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  {/* Area */}
+                  <div className="space-y-2">
+                    <Label htmlFor="area">Farm Area (hectares)</Label>
+                    <Input
+                      id="area"
+                      type="number"
+                      step="0.1"
+                      placeholder="2.5"
+                      value={formData.area}
+                      onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                      required
+                    />
                   </div>
+                </div>
 
-                  {/* Climate Conditions */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <Thermometer className="h-5 w-5" />
-                      Climate & Weather
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="rainfall">Expected Rainfall (mm)</Label>
-                        <Input
-                          id="rainfall"
-                          type="number"
-                          placeholder="800"
-                          value={formData.rainfall}
-                          onChange={(e) => setFormData({...formData, rainfall: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="temperature">Avg Temperature (°C)</Label>
-                        <Input
-                          id="temperature"
-                          type="number"
-                          placeholder="28"
-                          value={formData.temperature}
-                          onChange={(e) => setFormData({...formData, temperature: e.target.value})}
-                          required
-                        />
-                      </div>
-                    </div>
+                {/* Weather Inputs */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="rainfall">Rainfall (mm)</Label>
+                    <Input
+                      id="rainfall"
+                      type="number"
+                      placeholder="800"
+                      value={formData.rainfall}
+                      onChange={(e) => setFormData({ ...formData, rainfall: e.target.value })}
+                      required
+                    />
                   </div>
-
-                  {/* Farming Inputs */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-lg">Farming Inputs</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="pesticides">Pesticides Used (kg/ha)</Label>
-                        <Input
-                          id="pesticides"
-                          type="number"
-                          step="0.1"
-                          placeholder="2.5"
-                          value={formData.pesticides}
-                          onChange={(e) => setFormData({...formData, pesticides: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="fertilizers">Fertilizers Used (kg/ha)</Label>
-                        <Input
-                          id="fertilizers"
-                          type="number"
-                          step="0.1"
-                          placeholder="150"
-                          value={formData.fertilizers}
-                          onChange={(e) => setFormData({...formData, fertilizers: e.target.value})}
-                          required
-                        />
-                      </div>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="temperature">Temperature (°C)</Label>
+                    <Input
+                      id="temperature"
+                      type="number"
+                      placeholder="28"
+                      value={formData.temperature}
+                      onChange={(e) => setFormData({ ...formData, temperature: e.target.value })}
+                      required
+                    />
                   </div>
+                </div>
 
-                  <Button type="submit" variant="hero" className="w-full" size="lg">
-                    Predict Yield
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            {/* Information Panel */}
-            <div className="space-y-6">
-              <Card className="shadow-farm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    Prediction Accuracy
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-primary mb-2">92%</div>
-                      <p className="text-sm text-muted-foreground">Average prediction accuracy</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 text-center">
-                      <div>
-                        <div className="text-xl font-semibold">500K+</div>
-                        <p className="text-sm text-muted-foreground">Predictions made</p>
-                      </div>
-                      <div>
-                        <div className="text-xl font-semibold">15+</div>
-                        <p className="text-sm text-muted-foreground">Crop varieties</p>
-                      </div>
-                    </div>
+                {/* Inputs */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pesticides">Pesticides (kg/ha)</Label>
+                    <Input
+                      id="pesticides"
+                      type="number"
+                      step="0.1"
+                      placeholder="2.5"
+                      value={formData.pesticides}
+                      onChange={(e) => setFormData({ ...formData, pesticides: e.target.value })}
+                      required
+                    />
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-farm">
-                <CardHeader>
-                  <CardTitle>Sample Yield Predictions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h4 className="font-medium text-green-800 dark:text-green-200">Rice (2 ha)</h4>
-                          <p className="text-sm text-green-600 dark:text-green-300">Kharif season</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-green-800 dark:text-green-200">8.5 tons</div>
-                          <div className="text-xs text-green-600 dark:text-green-300">4.25 t/ha</div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h4 className="font-medium text-yellow-800 dark:text-yellow-200">Wheat (3 ha)</h4>
-                          <p className="text-sm text-yellow-600 dark:text-yellow-300">Rabi season</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-yellow-800 dark:text-yellow-200">12 tons</div>
-                          <div className="text-xs text-yellow-600 dark:text-yellow-300">4.0 t/ha</div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h4 className="font-medium text-blue-800 dark:text-blue-200">Corn (1.5 ha)</h4>
-                          <p className="text-sm text-blue-600 dark:text-blue-300">Zaid season</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-blue-800 dark:text-blue-200">9 tons</div>
-                          <div className="text-xs text-blue-600 dark:text-blue-300">6.0 t/ha</div>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fertilizers">Fertilizers (kg/ha)</Label>
+                    <Input
+                      id="fertilizers"
+                      type="number"
+                      step="0.1"
+                      placeholder="150"
+                      value={formData.fertilizers}
+                      onChange={(e) => setFormData({ ...formData, fertilizers: e.target.value })}
+                      required
+                    />
                   </div>
-                </CardContent>
-              </Card>
+                </div>
 
-              <Card className="shadow-farm">
-                <CardHeader>
-                  <CardTitle>Factors Considered</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span>Historical yield data</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span>Weather patterns</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span>Soil composition</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span>Farming practices</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span>Regional variations</span>
-                    </div>
+                <Button type="submit" variant="hero" className="w-full" size="lg" disabled={loading}>
+                  {loading ? "Predicting..." : "Predict Yield"}
+                </Button>
+
+                {/* Display Results */}
+                {result && (
+                  <div className="mt-4 text-center font-semibold text-lg text-primary">
+                    Predicted Yield: {result} tons/hectare
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+                )}
+
+                {errorMsg && (
+                  <div className="mt-4 text-center text-red-500 font-medium">
+                    {errorMsg}
+                  </div>
+                )}
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
