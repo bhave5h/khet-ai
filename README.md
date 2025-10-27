@@ -8,6 +8,12 @@ crop desase - CD
 
 
 how to start 
+1 frontend
+1 cd frontend
+2 npm i
+3 npm run dev
 
 2 backend
-PS B:\Khet-Ai\backend> venv\Scripts\activate
+1 cd backend 
+2 venv\Scripts\activate
+3 python app.py
