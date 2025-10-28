@@ -10,9 +10,9 @@ export function Navbar() {
   const navigationItems = [
     { name: "Home", path: "/" },
     { name: "Crop Recommendation", path: "/crop-recommendation" },
-    { name: "Yield Prediction", path: "/yield-prediction" },
     { name: "Fertilizer Suggestion", path: "/fertilizer-suggestion" },
     { name: "Price Estimation", path: "/price-estimation" },
+    { name: "Yield Prediction", path: "/yield-prediction" },
     { name: "Disease Detection", path: "/disease-detection" },
   ];
 
