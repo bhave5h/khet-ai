@@ -39,8 +39,6 @@ backend/venv/
 backend/.env
 backend/*.pkl
 backend/*.h5
-backend/data/
-backend/notebooks/
 backend/.ipynb_checkpoints/
 backend/*.pyc
 backend/*.log
@@ -63,10 +61,6 @@ venv/
 
 # Node
 node_modules/
-
-# Models & Data
-backend/models/*.pkl
-backend/data/*.csv
 
 # Jupyter Notebook Checkpoints
 .ipynb_checkpoints/

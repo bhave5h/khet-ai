@@ -1,4 +1,4 @@
-naming scema for better orgainzations
+<h1>naming scema for better orgainzations</h1>
 
 crop recomendation - CR
 crop yield - CY
@@ -6,8 +6,8 @@ crop fertilizer - CF
 Crop prise - CP
 crop desase - CD
 
-
-how to start 
+<h1>how to start</h1>
+ 
 1 frontend
 1 cd frontend
 2 npm i
