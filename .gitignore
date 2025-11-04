@@ -36,6 +36,7 @@ build/
 # =========================
 backend/__pycache__/
 backend/venv/
+backend/data/plantvillage
 backend/.env
 backend/*.pkl
 backend/*.h5
