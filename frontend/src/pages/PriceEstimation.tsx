@@ -123,43 +123,7 @@ export default function PriceEstimation() {
               </CardTitle>
             </CardHeader>
 
-<<<<<<< HEAD
-          <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
-            {/* Input Form */}
-            <Card className="shadow-farm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Crop & Market Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Basic Information */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="cropType">Crop Type</Label>
-                      <Select value={formData.cropType} onValueChange={(value) => setFormData({...formData, cropType: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select crop" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="rice">Rice</SelectItem>
-                          <SelectItem value="wheat">Wheat</SelectItem>
-                          <SelectItem value="corn">Corn</SelectItem>
-                          <SelectItem value="barley">Barley</SelectItem>
-                          <SelectItem value="cotton">Cotton</SelectItem>
-                          <SelectItem value="sugarcane">Sugarcane</SelectItem>
-                          <SelectItem value="potato">Potato</SelectItem>
-                          <SelectItem value="tomato">Tomato</SelectItem>
-                          <SelectItem value="onion">Onion</SelectItem>
-                          <SelectItem value="soybean">Soybean</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-=======
             
->>>>>>> recovered-code
 
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -233,15 +197,6 @@ export default function PriceEstimation() {
                     </Select>
                   </div>
 
-<<<<<<< HEAD
-                  <Button type="submit" variant="hero" className="w-full" size="lg">
-                    Get Price Estimation
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-=======
                   {/* Crop */}
                   <div className="space-y-2">
                     <Label>Crop</Label>
@@ -313,7 +268,6 @@ export default function PriceEstimation() {
               </form>
             </CardContent>
           </Card>
->>>>>>> recovered-code
         </div>
       </div>
     </div>
