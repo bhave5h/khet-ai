@@ -1,52 +1,129 @@
-import { Navbar } from "@/components/Navbar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DollarSign, TrendingUp, Calendar, MapPin } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Navbar } from "../components/Navbar";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { DollarSign, TrendingUp } from "lucide-react";
 
 export default function PriceEstimation() {
   const [formData, setFormData] = useState({
-    cropType: "",
-    quantity: "",
-    quality: "",
-    location: "",
-    marketType: "",
-    harvestDate: ""
+    state: "",
+    district: "",
+    market: "",
+    crop: "",
+    variety: "",
+    date: ""
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [options, setOptions] = useState({
+    states: [] as string[],
+    districts: [] as string[],
+    markets: [] as string[],
+    crops: [] as string[],
+    varieties: [] as string[]
+  });
+
+  const [result, setResult] = useState<{
+    price?: number;
+    currency?: string;
+    unit?: string;
+  }>({});
+
+  const [loading, setLoading] = useState(false);
+  const API_BASE = "http://127.0.0.1:5000"; // ⚙️ Flask backend URL
+
+  // ------------------------------------------------------------
+  // Fetch options dynamically
+  // ------------------------------------------------------------
+  useEffect(() => {
+    fetch(`${API_BASE}/get_states`)
+      .then((res) => res.json())
+      .then((data) => setOptions((prev) => ({ ...prev, states: data })))
+      .catch(() => setOptions((prev) => ({ ...prev, states: [] })));
+  }, []);
+
+  useEffect(() => {
+    if (!formData.state) return;
+    fetch(`${API_BASE}/get_districts/${formData.state}`)
+      .then((res) => res.json())
+      .then((data) => setOptions((prev) => ({ ...prev, districts: data, markets: [], crops: [], varieties: [] })));
+  }, [formData.state]);
+
+  useEffect(() => {
+    if (!formData.district) return;
+    fetch(`${API_BASE}/get_markets/${formData.state}/${formData.district}`)
+      .then((res) => res.json())
+      .then((data) => setOptions((prev) => ({ ...prev, markets: data, crops: [], varieties: [] })));
+  }, [formData.district]);
+
+  useEffect(() => {
+    if (!formData.market) return;
+    fetch(`${API_BASE}/get_crops/${formData.state}/${formData.district}/${formData.market}`)
+      .then((res) => res.json())
+      .then((data) => setOptions((prev) => ({ ...prev, crops: data, varieties: [] })));
+  }, [formData.market]);
+
+  useEffect(() => {
+    if (!formData.crop) return;
+    fetch(`${API_BASE}/get_varieties/${formData.state}/${formData.district}/${formData.market}/${formData.crop}`)
+      .then((res) => res.json())
+      .then((data) => setOptions((prev) => ({ ...prev, varieties: data })));
+  }, [formData.crop]);
+
+  // ------------------------------------------------------------
+  // Submit form (Predict Price)
+  // ------------------------------------------------------------
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Price estimation feature will be implemented with market data integration!");
+    setLoading(true);
+    setResult({});
+
+    try {
+      const res = await fetch(`${API_BASE}/predict_price`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+      if (data.status === "success") {
+        setResult({
+          price: data.predicted_price_per_kg,
+          currency: data.currency,
+          unit: data.unit
+        });
+      } else {
+        setResult({});
+        alert(data.error || "Prediction failed.");
+      }
+    } catch (err) {
+      alert("Error connecting to backend.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const marketPrices = [
-    { crop: "Rice", price: "₹2,100/quintal", trend: "↗️", change: "+2.5%" },
-    { crop: "Wheat", price: "₹2,350/quintal", trend: "↗️", change: "+1.8%" },
-    { crop: "Corn", price: "₹1,850/quintal", trend: "↘️", change: "-1.2%" },
-    { crop: "Cotton", price: "₹6,200/quintal", trend: "↗️", change: "+3.1%" },
-    { crop: "Sugarcane", price: "₹320/quintal", trend: "→", change: "0%" },
-  ];
-
+  // ------------------------------------------------------------
+  // Render UI
+  // ------------------------------------------------------------
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
       
-      <div className="container py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="mx-auto w-16 h-16 rounded-lg bg-gradient-to-br from-purple-400/20 to-purple-600/20 flex items-center justify-center mb-4">
-              <DollarSign className="h-8 w-8 text-primary" />
-            </div>
-            <h1 className="text-4xl font-bold mb-4">Crop Price Estimation</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Get real-time market price predictions for your crops to make informed selling decisions and maximize profits.
-            </p>
-          </div>
+      <Navbar />
 
+      
+      <div className="container py-10">
+        <div className="max-w-4xl mx-auto">
+          <Card className="shadow-farm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" /> Crop Price Prediction
+              </CardTitle>
+            </CardHeader>
+
+<<<<<<< HEAD
           <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
             {/* Input Form */}
             <Card className="shadow-farm">
@@ -80,88 +157,83 @@ export default function PriceEstimation() {
                         </SelectContent>
                       </Select>
                     </div>
+=======
+            
+>>>>>>> recovered-code
 
-                    <div className="space-y-2">
-                      <Label htmlFor="quantity">Quantity (quintals)</Label>
-                      <Input
-                        id="quantity"
-                        type="number"
-                        placeholder="50"
-                        value={formData.quantity}
-                        onChange={(e) => setFormData({...formData, quantity: e.target.value})}
-                        required
-                      />
-                    </div>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Inputs */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* State */}
+                  <div className="space-y-2">
+                    <Label>State</Label>
+                    <Select
+                      value={formData.state}
+                      onValueChange={(v) =>
+                        setFormData({ state: v, district: "", market: "", crop: "", variety: "", date: "" })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select State" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.states.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* Quality and Location */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="quality">Crop Quality</Label>
-                      <Select value={formData.quality} onValueChange={(value) => setFormData({...formData, quality: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select quality grade" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="premium">Premium Grade</SelectItem>
-                          <SelectItem value="grade-a">Grade A</SelectItem>
-                          <SelectItem value="grade-b">Grade B</SelectItem>
-                          <SelectItem value="standard">Standard</SelectItem>
-                          <SelectItem value="below-standard">Below Standard</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="location">Market Location</Label>
-                      <Select value={formData.location} onValueChange={(value) => setFormData({...formData, location: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select market" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="delhi">Delhi APMC</SelectItem>
-                          <SelectItem value="mumbai">Mumbai APMC</SelectItem>
-                          <SelectItem value="chennai">Chennai APMC</SelectItem>
-                          <SelectItem value="kolkata">Kolkata APMC</SelectItem>
-                          <SelectItem value="bangalore">Bangalore APMC</SelectItem>
-                          <SelectItem value="hyderabad">Hyderabad APMC</SelectItem>
-                          <SelectItem value="pune">Pune APMC</SelectItem>
-                          <SelectItem value="ahmedabad">Ahmedabad APMC</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  {/* District */}
+                  <div className="space-y-2">
+                    <Label>District</Label>
+                    <Select
+                      value={formData.district}
+                      onValueChange={(v) =>
+                        setFormData({ ...formData, district: v, market: "", crop: "", variety: "" })
+                      }
+                      disabled={!options.districts.length}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select District" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.districts.map((d) => (
+                          <SelectItem key={d} value={d}>
+                            {d}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* Market Type and Date */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="marketType">Market Type</Label>
-                      <Select value={formData.marketType} onValueChange={(value) => setFormData({...formData, marketType: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select market type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="wholesale">Wholesale Market</SelectItem>
-                          <SelectItem value="retail">Retail Market</SelectItem>
-                          <SelectItem value="direct">Direct to Consumer</SelectItem>
-                          <SelectItem value="contract">Contract Farming</SelectItem>
-                          <SelectItem value="export">Export Market</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="harvestDate">Expected Sale Date</Label>
-                      <Input
-                        id="harvestDate"
-                        type="date"
-                        value={formData.harvestDate}
-                        onChange={(e) => setFormData({...formData, harvestDate: e.target.value})}
-                        required
-                      />
-                    </div>
+                  {/* Market */}
+                  <div className="space-y-2">
+                    <Label>Market</Label>
+                    <Select
+                      value={formData.market}
+                      onValueChange={(v) =>
+                        setFormData({ ...formData, market: v, crop: "", variety: "" })
+                      }
+                      disabled={!options.markets.length}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Market" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.markets.map((m) => (
+                          <SelectItem key={m} value={m}>
+                            {m}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
+<<<<<<< HEAD
                   <Button type="submit" variant="hero" className="w-full" size="lg">
                     Get Price Estimation
                   </Button>
@@ -169,6 +241,79 @@ export default function PriceEstimation() {
               </CardContent>
             </Card>
           </div>
+=======
+                  {/* Crop */}
+                  <div className="space-y-2">
+                    <Label>Crop</Label>
+                    <Select
+                      value={formData.crop}
+                      onValueChange={(v) => setFormData({ ...formData, crop: v, variety: "" })}
+                      disabled={!options.crops.length}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Crop" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.crops.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Variety */}
+                  <div className="space-y-2">
+                    <Label>Variety</Label>
+                    <Select
+                      value={formData.variety}
+                      onValueChange={(v) => setFormData({ ...formData, variety: v })}
+                      disabled={!options.varieties.length}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Variety" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.varieties.map((v) => (
+                          <SelectItem key={v} value={v}>
+                            {v}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Date */}
+                  <div className="space-y-2">
+                    <Label>Date</Label>
+                    <Input
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Submit */}
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Predicting..." : "Predict Price"}
+                </Button>
+
+                {/* Prediction Result */}
+                {result.price && (
+                  <div className="mt-6 text-center text-lg font-semibold">
+                    💰 Predicted Price:{" "}
+                    <span className="text-green-600 font-bold">
+                      {result.currency} {result.price.toFixed(2)} {result.unit === "per_kg" ? "/kg" : ""}
+                    </span>
+                  </div>
+                )}
+              </form>
+            </CardContent>
+          </Card>
+>>>>>>> recovered-code
         </div>
       </div>
     </div>
