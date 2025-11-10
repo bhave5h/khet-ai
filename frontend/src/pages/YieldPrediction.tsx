@@ -24,7 +24,7 @@ export default function YieldPrediction() {
 
   // ✅ Fetch unique crop list from backend
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/crops")
+    fetch("https://khet-ai.onrender.com/crops")
       .then((res) => res.json())
       .then((data) => setCrops(data.crops || []))
       .catch(() => setErrorMsg("Unable to load crop list from backend"));
@@ -37,7 +37,7 @@ export default function YieldPrediction() {
     setErrorMsg(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/predict_yield", {
+      const response = await fetch("https://khet-ai.onrender.com/predict_yield", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
