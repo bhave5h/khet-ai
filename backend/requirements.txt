@@ -11,3 +11,4 @@ xgboost
 Flask
 Flask-Cors
 tensorflow
+gunicorn

@@ -1,6 +1,6 @@
-import { ToolCard } from "@/components/ToolCard";
-import { Navbar } from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
+import { ToolCard } from "../components/ToolCard";
+import { Navbar } from "../components/Navbar";
+import { Button } from "../components/ui/button";
 import { 
   Sprout, 
   TrendingUp, 
@@ -11,9 +11,9 @@ import {
   Users,
   Award
 } from "lucide-react";
-import farmHeroImage from "@/assets/farm-hero.jpg";
+import farmHeroImage from "../assets/farm-hero.jpg";
 
-const Index = () => {
+const Home = () => {
   const tools = [
     {
       title: "Crop Recommendation",
@@ -149,4 +149,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Home;

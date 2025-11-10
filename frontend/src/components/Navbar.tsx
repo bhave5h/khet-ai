@@ -42,14 +42,14 @@ export function Navbar() {
 
         <div className="flex items-center space-x-2">
           {/* Profile/Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-2">
+          {/* <div className="hidden md:flex items-center space-x-2">
             <Button variant="ghost" asChild>
               <Link to="/login">Sign In</Link>
             </Button>
             <Button asChild>
               <Link to="/signup">Sign Up</Link>
             </Button>
-          </div>
+          </div> */}
           
           {/* Profile Icon for authenticated users (placeholder) */}
           <Button variant="ghost" size="icon" className="hidden">
