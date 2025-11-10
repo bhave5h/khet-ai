@@ -11,8 +11,8 @@ export function Navbar() {
     { name: "Home", path: "/" },
     { name: "Crop Recommendation", path: "/crop-recommendation" },
     { name: "Fertilizer Suggestion", path: "/fertilizer-suggestion" },
-    { name: "Price Estimation", path: "/price-estimation" },
     { name: "Yield Prediction", path: "/yield-prediction" },
+    { name: "Price Estimation", path: "/price-estimation" },
     { name: "Disease Detection", path: "/disease-detection" },
   ];
 

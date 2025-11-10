@@ -116,6 +116,16 @@ export default function PriceEstimation() {
       
       <div className="container py-10">
         <div className="max-w-4xl mx-auto">
+                    <div className="text-center mb-8">
+            <div className="mx-auto w-16 h-16 rounded-lg bg-gradient-to-br from-purple-400/20 to-purple-600/20 flex items-center justify-center mb-4">
+              <DollarSign className="h-8 w-8 text-primary" />
+            </div>
+            <h1 className="text-4xl font-bold mb-4">Crop Price Estimation</h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Get real-time market price predictions for your crops to make informed selling decisions and maximize profits.
+            </p>
+          </div>
+
           <Card className="shadow-farm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -270,6 +280,8 @@ export default function PriceEstimation() {
           </Card>
         </div>
       </div>
+      
+      
     </div>
   );
 }
