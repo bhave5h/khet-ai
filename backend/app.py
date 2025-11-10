@@ -249,7 +249,7 @@ def predict_disease():
 # ============================================================
 from datetime import datetime
 
-CP_DATA_PATH = "data/cp.csv"
+CP_DATA_PATH = "data/CP.csv"
 CP_MODEL_PATH = "models/CP.h5"
 CP_ENCODER_PATH = "models/CP_price_label_encoders.pkl"
 CP_SCALER_PATH = "models/CP_price_scaler.pkl"
