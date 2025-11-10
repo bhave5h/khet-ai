@@ -45,6 +45,12 @@ import pandas as pd
 import tensorflow as tf
 import joblib
 
+try:
+    tf.config.set_visible_devices([], 'GPU')
+    print("✅ TensorFlow running in CPU-only mode.")
+except Exception as e:
+    print(f"⚠️ Could not disable GPU: {e}")
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
@@ -180,10 +186,29 @@ def recommend_fertilizer():
 # ============================================================
 # 🍃 SECTION 4: PLANT DISEASE DETECTION
 # ============================================================
+# try:
+#     PD_MODEL_PATH = "models/CD.h5"
+#     PD_model = tf.keras.models.load_model(PD_MODEL_PATH)
+#     print("✅ Plant Disease Model loaded successfully.")
+# except Exception as e:
+#     print(f"❌ Error loading Plant Disease Model: {e}")
+#     PD_model = None
+
 try:
-    PD_MODEL_PATH = "models/CD.h5"
-    PD_model = tf.keras.models.load_model(PD_MODEL_PATH)
-    print("✅ Plant Disease Model loaded successfully.")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    MODEL_DIR = os.path.join(BASE_DIR, "models")
+
+    tf.config.set_visible_devices([], 'GPU')  # Force CPU
+    PD_MODEL_PATH = os.path.join(MODEL_DIR, "CD.h5")
+
+    # Check if model exists
+    if not os.path.exists(PD_MODEL_PATH):
+        print(f"❌ Plant Disease Model not found at {PD_MODEL_PATH}")
+        PD_model = None
+    else:
+        PD_model = tf.keras.models.load_model(PD_MODEL_PATH, compile=False)
+        print("✅ Plant Disease Model loaded successfully (CPU mode).")
+
 except Exception as e:
     print(f"❌ Error loading Plant Disease Model: {e}")
     PD_model = None
@@ -261,14 +286,50 @@ except Exception as e:
     CP_price_df = pd.DataFrame()
     print(f"⚠️ Failed to load price dataset: {e}")
 
+# ============================================================
+# 💰 SECTION 5: CROP PRICE PREDICTION (Render-safe CPU version)
+# ============================================================
 try:
-    CP_model = tf.keras.models.load_model(CP_MODEL_PATH, compile=False)
-    CP_encoders = joblib.load(CP_ENCODER_PATH)
-    CP_scaler = joblib.load(CP_SCALER_PATH)
-    print("✅ Crop Price Model & Preprocessors loaded successfully.")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    MODEL_DIR = os.path.join(BASE_DIR, "models")
+    DATA_DIR = os.path.join(BASE_DIR, "data")
+
+    tf.config.set_visible_devices([], 'GPU')  # Force CPU mode
+
+    CP_MODEL_PATH = os.path.join(MODEL_DIR, "CP.h5")
+    CP_ENCODER_PATH = os.path.join(MODEL_DIR, "CP_price_label_encoders.pkl")
+    CP_SCALER_PATH = os.path.join(MODEL_DIR, "CP_price_scaler.pkl")
+    CP_DATA_PATH = os.path.join(DATA_DIR, "cp.csv")
+
+    # Debug check for model file existence
+    print(f"Checking CP model file: {os.path.exists(CP_MODEL_PATH)}")
+    print(f"Checking encoder file: {os.path.exists(CP_ENCODER_PATH)}")
+    print(f"Checking scaler file: {os.path.exists(CP_SCALER_PATH)}")
+
+    CP_price_df = pd.read_csv(CP_DATA_PATH)
+    print(f"✅ Price dataset loaded with {len(CP_price_df)} records.")
+
+    if os.path.exists(CP_MODEL_PATH):
+        CP_model = tf.keras.models.load_model(CP_MODEL_PATH, compile=False)
+        CP_encoders = joblib.load(CP_ENCODER_PATH)
+        CP_scaler = joblib.load(CP_SCALER_PATH)
+        print("✅ Crop Price Model & Preprocessors loaded successfully (CPU mode).")
+    else:
+        print("❌ CP.h5 not found in models/ folder.")
+        CP_model = None
+
 except Exception as e:
     CP_model = None
     print(f"❌ Error loading CP model: {e}")
+
+# try:
+#     CP_model = tf.keras.models.load_model(CP_MODEL_PATH, compile=False)
+#     CP_encoders = joblib.load(CP_ENCODER_PATH)
+#     CP_scaler = joblib.load(CP_SCALER_PATH)
+#     print("✅ Crop Price Model & Preprocessors loaded successfully.")
+# except Exception as e:
+#     CP_model = None
+#     print(f"❌ Error loading CP model: {e}")
 
 
 def CP_prepare_input(data):
