@@ -271,7 +271,7 @@ export default function PriceEstimation() {
                   <div className="mt-6 text-center text-lg font-semibold">
                     💰 Predicted Price:{" "}
                     <span className="text-green-600 font-bold">
-                      {result.currency} {result.price.toFixed(2)} {result.unit === "per_kg" ? "/kg" : ""}
+                      {result.currency} {result.price.toFixed(2)} {result.unit === "per_kg" ? "/quintal" : ""}
                     </span>
                   </div>
                 )}
